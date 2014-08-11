@@ -184,44 +184,44 @@ int or32_instruction_to_string(TRegister opcode, char *output, int max_len)
 
         case INST_OR32_LBS: // l.lbs
             if ((int)v_imm_int32 < 0)
-                sprintf(output, "l.lbs   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lbs   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra);
             else
-                sprintf(output, "l.lbs   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lbs   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra);
         break;
 
         case INST_OR32_LHS: // l.lhs
             if ((int)v_imm_int32 < 0)
-                sprintf(output, "l.lhs   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lhs   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra);
             else
-                sprintf(output, "l.lhs   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lhs   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra);
         break;
 
         case INST_OR32_LWS: // l.lws
             if ((int)v_imm_int32 < 0)
-                sprintf(output, "l.lws   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lws   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra);
             else
-                sprintf(output, "l.lws   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lws   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra);
         break;
 
         case INST_OR32_LBZ: // l.lbz
             if ((int)v_imm_int32 < 0)
-                sprintf(output, "l.lbz   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lbz   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra);
             else
-                sprintf(output, "l.lbz   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lbz   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra);
         break;
 
         case INST_OR32_LHZ: // l.lhz
             if ((int)v_imm_int32 < 0)
-                sprintf(output, "l.lhz   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lhz   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra);
             else
-                sprintf(output, "l.lhz   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lhz   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra);
         break;
 
         case INST_OR32_LWZ: // l.lwz
             if ((int)v_imm_int32 < 0)
-                sprintf(output, "l.lwz   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lwz   r%d,%d(r%d)", v_rd, (int)v_imm_int32, v_ra);
             else
-                sprintf(output, "l.lwz   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra, v_rd);
+                sprintf(output, "l.lwz   r%d,0x%x(r%d)", v_rd, (int)v_imm_int32, v_ra);
         break;
 
         case INST_OR32_MFSPR: // l.mfspr

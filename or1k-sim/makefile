@@ -33,3 +33,5 @@ clean:
 $(TARGET): $(OBJ) makefile
 	g++ $(LDFLAGS) $(OBJ) $(LIBS) -o $@
 
+test: $(TARGET)
+	./$(TARGET) -f test_image.bin
