@@ -43,8 +43,13 @@ module soc
     // General - Clocking & Reset
     clk_i,
     rst_i,
+
     ext_intr_i,
     intr_o,
+
+    // UART0
+    uart_tx_o,
+    uart_rx_i,
 
     // Memory interface
     io_addr_i,
@@ -60,6 +65,7 @@ module soc
 //-----------------------------------------------------------------
 parameter  [31:0]   CLK_KHZ              = 12288;
 parameter  [31:0]   EXTERNAL_INTERRUPTS  = 1;
+parameter           UART_BAUD            = 115200;
 parameter           SYSTICK_INTR_MS      = 1;
 parameter           ENABLE_SYSTICK_TIMER = "ENABLED";
 parameter           ENABLE_HIGHRES_TIMER = "ENABLED";
@@ -71,7 +77,8 @@ input                   clk_i /*verilator public*/;
 input                   rst_i /*verilator public*/;
 input [(EXTERNAL_INTERRUPTS - 1):0]  ext_intr_i /*verilator public*/;
 output                  intr_o /*verilator public*/;
-
+output                  uart_tx_o /*verilator public*/;
+input                   uart_rx_i /*verilator public*/;
 // Memory Port
 input [31:0]            io_addr_i /*verilator public*/;
 input [31:0]            io_data_i /*verilator public*/;
@@ -83,6 +90,13 @@ output                  io_ack_o /*verilator public*/;
 //-----------------------------------------------------------------
 // Registers / Wires
 //-----------------------------------------------------------------
+wire [7:0]         uart0_addr;
+wire [31:0]        uart0_data_w;
+wire [31:0]        uart0_data_r;
+wire               uart0_we;
+wire               uart0_stb;
+wire               uart0_intr;
+
 wire [7:0]         timer_addr;
 wire [31:0]        timer_data_o;
 wire [31:0]        timer_data_i;
@@ -117,12 +131,12 @@ u2_soc
     .io_ack_o(io_ack_o),
 
     // Peripherals
-    // Unused = 0x12000000 - 0x120000FF
-    .periph0_addr_o(/*open*/),
-    .periph0_data_o(/*open*/),
-    .periph0_data_i(32'h00000000),
-    .periph0_we_o(/*open*/),
-    .periph0_stb_o(/*open*/),
+    // UART0 = 0x12000000 - 0x120000FF
+    .periph0_addr_o(uart0_addr),
+    .periph0_data_o(uart0_data_w),
+    .periph0_data_i(uart0_data_r),
+    .periph0_we_o(uart0_we),
+    .periph0_stb_o(uart0_stb),
 
     // Timer = 0x12000100 - 0x120001FF
     .periph1_addr_o(timer_addr),
@@ -175,6 +189,27 @@ u2_soc
 );
 
 //-----------------------------------------------------------------
+// UART0
+//-----------------------------------------------------------------
+uart_periph
+#(
+    .UART_DIVISOR(((CLK_KHZ * 1000) / UART_BAUD))
+)
+u_uart
+(
+    .clk_i(clk_i),
+    .rst_i(rst_i),
+    .intr_o(uart0_intr),
+    .addr_i(uart0_addr),
+    .data_o(uart0_data_r),
+    .data_i(uart0_data_w),
+    .we_i(uart0_we),
+    .stb_i(uart0_stb),
+    .rx_i(uart_rx_i),
+    .tx_o(uart_tx_o)
+);
+
+//-----------------------------------------------------------------
 // Timer
 //-----------------------------------------------------------------
 timer_periph
@@ -184,7 +219,7 @@ timer_periph
     .ENABLE_SYSTICK_TIMER(ENABLE_SYSTICK_TIMER),
     .ENABLE_HIGHRES_TIMER(ENABLE_HIGHRES_TIMER)
 )
-u5_timer
+u_timer
 (
     .clk_i(clk_i),
     .rst_i(rst_i),
@@ -204,25 +239,21 @@ intr_periph
 #(
     .EXTERNAL_INTERRUPTS(EXTERNAL_INTERRUPTS)
 )
-u6_intr
+u_intr
 (
     .clk_i(clk_i),
     .rst_i(rst_i),
     .intr_o(intr_o),
 
-    .intr0_i(1'b0),
-
+    .intr0_i(uart0_intr),
     .intr1_i(timer_intr_systick),
     .intr2_i(timer_intr_hires),
     .intr3_i(1'b0),
-
     .intr4_i(1'b0),
-
     .intr5_i(1'b0),
-
     .intr6_i(1'b0),
-
     .intr7_i(1'b0),
+
     .intr_ext_i(ext_intr_i),
 
     .addr_i(intr_addr),
@@ -238,12 +269,12 @@ u6_intr
 `ifdef verilator
    function [0:0] get_uart_wr;
       // verilator public
-      get_uart_wr = 1'b0;
+      get_uart_wr = uart0_stb & uart0_we;
    endfunction
    
    function [7:0] get_uart_data;
       // verilator public
-      get_uart_data = 8'b0;
+      get_uart_data = uart0_data_w[7:0];
    endfunction
 `endif
 

@@ -205,6 +205,9 @@ u_soc
     .ext_intr_i(1'b0),
     .intr_o(soc_irq),
 
+    .uart_tx_o(),
+    .uart_rx_i(1'b0),
+
     // Memory Port
     .io_addr_i(soc_addr),    
     .io_data_i(soc_data_w),

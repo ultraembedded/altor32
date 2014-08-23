@@ -36,31 +36,59 @@
 //-----------------------------------------------------------------
 
 //-----------------------------------------------------------------
-// Module
+// TOP
 //-----------------------------------------------------------------
 module top
-( 
-    // Clocking & Reset
-    input clk_i, 
-    input rst_i, 
-    // Fault Output
-    output fault_o,
-    // Break Output 
-    output break_o,
-    // Interrupt Input
-    input intr_i
+(
+    // 32MHz clock
+    input           clk /*verilator public*/,
+
+    // UART
+    input           rx /*verilator public*/,
+    output          tx /*verilator public*/,
+
+    // I/O Bus
+    inout [15:0]    W1A /*verilator public*/,
+    inout [15:0]    W1B /*verilator public*/,
+    inout [15:0]    W2C /*verilator public*/,
+    
+    // SPI Flash
+    output          flash_cs /*verilator public*/,
+    output          flash_si /*verilator public*/,
+    input           flash_so /*verilator public*/,
+    output          flash_sck /*verilator public*/
 );
 
 //-----------------------------------------------------------------
 // Params
 //-----------------------------------------------------------------
-parameter           CLK_KHZ              = 8192;
-parameter           BOOT_VECTOR          = 32'h10000000;
-parameter           ISR_VECTOR           = 32'h10000000;
+parameter       OSC_KHZ             = 32000;
+parameter       CLK_KHZ             = 32000;
+parameter       UART_BAUD           = 115200;
+
+//-----------------------------------------------------------------
+// Ports
+//-----------------------------------------------------------------
+
+// Port C
+`define W2C_UNUSED_RANGE 15:0
+`define W2C_UNUSED_WIDTH 16
+
+// Port B
+`define W1B_UNUSED_RANGE 15:0
+`define W1B_UNUSED_WIDTH 16
+
+// Port A
+`define W1A_UNUSED_RANGE 15:0
+`define W1A_UNUSED_WIDTH 16
 
 //-----------------------------------------------------------------
 // Registers / Wires
 //-----------------------------------------------------------------
+// Reset
+reg                 reset           = 1'b1;
+reg                 rst_next        = 1'b1;
+
 wire [31:0]         soc_addr;
 wire [31:0]         soc_data_w;
 wire [31:0]         soc_data_r;
@@ -73,66 +101,61 @@ wire[31:0]          dmem_address;
 wire[31:0]          dmem_data_w;
 wire[31:0]          dmem_data_r;
 wire[3:0]           dmem_sel;
-wire[2:0]           dmem_cti;
 wire                dmem_we;
 wire                dmem_stb;
-wire                dmem_cyc;
-wire                dmem_stall;
-wire                dmem_ack;
+reg                 dmem_ack;
 
 wire[31:0]          imem_addr;
 wire[31:0]          imem_data;
 wire[3:0]           imem_sel;
 wire                imem_stb;
-wire                imem_cyc;
-wire[2:0]           imem_cti;
-wire                imem_stall;
-wire                imem_ack;
-
+reg                 imem_ack;
 
 //-----------------------------------------------------------------
 // Instantiation
 //-----------------------------------------------------------------
-ram
+
+wire [3:0]          dmem_web = (dmem_stb & dmem_we) ? dmem_sel : 4'b0;
+
+// BlockRAM
+ram  
+#(
+    .block_count(3) // 24KB
+) 
 u_ram
 (
-    .clka_i(clk_i), 
-    .rsta_i(rst_i), 
-    .stba_i(imem_stb), 
-    .wea_i(1'b0), 
-    .sela_i(imem_sel), 
+    .clka_i(clk), 
+    .ena_i(1'b1),
+    .wea_i(4'b0), 
     .addra_i(imem_addr[31:2]), 
     .dataa_i(32'b0),
     .dataa_o(imem_data),
-    .acka_o(imem_ack),
 
-    .clkb_i(clk_i), 
-    .rstb_i(rst_i), 
-    .stbb_i(dmem_stb), 
-    .web_i(dmem_we), 
-    .selb_i(dmem_sel), 
+    .clkb_i(clk), 
+    .enb_i(1'b1),
+    .web_i(dmem_web), 
     .addrb_i(dmem_address[31:2]), 
     .datab_i(dmem_data_w),
-    .datab_o(dmem_data_r),
-    .ackb_o(dmem_ack)
+    .datab_o(dmem_data_r)
 );
 
+// CPU
 cpu_if
 #(
     .CLK_KHZ(CLK_KHZ),
     .BOOT_VECTOR(32'h10000000),
     .ISR_VECTOR(32'h10000000),
-    .ENABLE_ICACHE(`ICACHE_ENABLED),
-    .ENABLE_DCACHE(`DCACHE_ENABLED),
-    .REGISTER_FILE_TYPE("SIMULATION")
+    .ENABLE_ICACHE("DISABLED"),
+    .ENABLE_DCACHE("DISABLED"),
+    .REGISTER_FILE_TYPE("XILINX")
 )
 u_cpu
 (
     // General - clocking & reset
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .fault_o(fault_o),
-    .break_o(break_o),
+    .clk_i(clk),
+    .rst_i(reset),
+    .fault_o(),
+    .break_o(),
     .nmi_i(1'b0),
     .intr_i(soc_irq),
 
@@ -140,8 +163,8 @@ u_cpu
     .imem0_addr_o(imem_addr),
     .imem0_data_i(imem_data),
     .imem0_sel_o(imem_sel),
-    .imem0_cti_o(imem_cti),
-    .imem0_cyc_o(imem_cyc),
+    .imem0_cti_o(),
+    .imem0_cyc_o(),
     .imem0_stb_o(imem_stb),
     .imem0_stall_i(1'b0),
     .imem0_ack_i(imem_ack),
@@ -151,8 +174,8 @@ u_cpu
     .dmem0_data_o(dmem_data_w),
     .dmem0_data_i(dmem_data_r),
     .dmem0_sel_o(dmem_sel),
-    .dmem0_cti_o(dmem_cti),
-    .dmem0_cyc_o(dmem_cyc),
+    .dmem0_cti_o(),
+    .dmem0_cyc_o(),
     .dmem0_we_o(dmem_we),
     .dmem0_stb_o(dmem_stb),
     .dmem0_stall_i(1'b0),
@@ -189,18 +212,19 @@ soc
     .CLK_KHZ(CLK_KHZ),
     .ENABLE_SYSTICK_TIMER("ENABLED"),
     .ENABLE_HIGHRES_TIMER("ENABLED"),
+    .UART_BAUD(UART_BAUD),
     .EXTERNAL_INTERRUPTS(1)
 )
 u_soc
 (
     // General - clocking & reset
-    .clk_i(clk_i),
-    .rst_i(rst_i),
+    .clk_i(clk),
+    .rst_i(reset),
     .ext_intr_i(1'b0),
     .intr_o(soc_irq),
 
-    .uart_tx_o(),
-    .uart_rx_i(1'b0),
+    .uart_tx_o(tx),
+    .uart_rx_i(rx),
 
     // Memory Port
     .io_addr_i(soc_addr),    
@@ -210,5 +234,42 @@ u_soc
     .io_stb_i(soc_stb),
     .io_ack_o(soc_ack)
 );
-    
+
+//-----------------------------------------------------------------
+// Implementation
+//-----------------------------------------------------------------
+
+// Reset Generator
+always @(posedge clk) 
+if (rst_next == 1'b0)
+    reset       <= 1'b0;
+else 
+    rst_next    <= 1'b0;
+
+// Ack
+always @(posedge clk or posedge reset)
+    if (reset == 1'b1)
+        dmem_ack  <= 1'b0;
+    else
+        dmem_ack  <= dmem_stb;
+
+// Ack
+always @(posedge clk or posedge reset)
+    if (reset == 1'b1)
+        imem_ack  <= 1'b0;
+    else
+        imem_ack  <= imem_stb;
+
+
+//-----------------------------------------------------------------
+// Unused pins
+//-----------------------------------------------------------------
+assign W1A[`W1A_UNUSED_RANGE] = {`W1A_UNUSED_WIDTH{1'bz}};
+assign W1B[`W1B_UNUSED_RANGE] = {`W1B_UNUSED_WIDTH{1'bz}};
+assign W2C[`W2C_UNUSED_RANGE] = {`W2C_UNUSED_WIDTH{1'bz}};
+
+assign flash_cs     = 1'b0;
+assign flash_sck    = 1'b0;
+assign flash_si     = 1'b0;
+
 endmodule
