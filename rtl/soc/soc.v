@@ -57,13 +57,15 @@ module soc
     io_data_o,
     io_we_i,
     io_stb_i,    
-    io_ack_o
+    io_ack_o,
+    
+    gpio
 );
 
 //-----------------------------------------------------------------
 // Params
 //-----------------------------------------------------------------
-parameter  [31:0]   CLK_KHZ              = 12288;
+parameter  [31:0]   CLK_KHZ              = 50000;
 parameter  [31:0]   EXTERNAL_INTERRUPTS  = 1;
 parameter           UART_BAUD            = 115200;
 parameter           SYSTICK_INTR_MS      = 1;
@@ -86,7 +88,7 @@ output [31:0]           io_data_o /*verilator public*/;
 input                   io_we_i /*verilator public*/;
 input                   io_stb_i /*verilator public*/;
 output                  io_ack_o /*verilator public*/;
-
+output [7:0]		    gpio;
 //-----------------------------------------------------------------
 // Registers / Wires
 //-----------------------------------------------------------------
@@ -110,6 +112,12 @@ wire [31:0]        intr_data_o;
 wire [31:0]        intr_data_i;
 wire               intr_we;
 wire               intr_stb;
+
+wire [7:0]	   gpio0_addr;
+wire [31:0]	   gpio0_data_w;
+wire [31:0]	   gpio0_data_r;
+wire		   gpio0_we;
+wire 	  	   gpio0_stb;
 
 //-----------------------------------------------------------------
 // Peripheral Interconnect
@@ -152,12 +160,12 @@ u2_soc
     .periph2_we_o(intr_we),
     .periph2_stb_o(intr_stb),
 
-    // Unused = 0x12000300 - 0x120003FF
-    .periph3_addr_o(/*open*/),
-    .periph3_data_o(/*open*/),
-    .periph3_data_i(32'h00000000),
-    .periph3_we_o(/*open*/),
-    .periph3_stb_o(/*open*/),
+    // GPIO0 = 0x12000300 - 0x120003FF
+    .periph3_addr_o(gpio0_addr),
+    .periph3_data_o(gpio0_data_w),
+    .periph3_data_i(gpio0_data_r),
+    .periph3_we_o(gpio0_we),
+    .periph3_stb_o(gpio0_stb),
 
     // Unused = 0x12000400 - 0x120004FF
     .periph4_addr_o(/*open*/),
@@ -186,6 +194,26 @@ u2_soc
     .periph7_data_i(32'h00000000),
     .periph7_we_o(/*open*/),
     .periph7_stb_o(/*open*/)
+);
+
+
+//-----------------------------------------------------------------
+// GPIO0
+//-----------------------------------------------------------------
+gpio
+#(
+	.io(8)
+)
+u_gpio0
+(
+	.clk_i(clk_i),
+	.rst_i(rst_i),
+	.stb_i(gpio0_stb),
+	.adr_i(gpio0_addr[2]),
+	.we_i(gpio0_we),
+	.dat_i(gpio0_data_w[7:0]),
+	.dat_o(gpio0_data_r[7:0]),
+	.gpio(gpio)
 );
 
 //-----------------------------------------------------------------

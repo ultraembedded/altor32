@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
+[*] Thu Feb 19 18:00:03 2015
+[*]
+[dumpfile] "/home/sheridp/Desktop/altor32/fpga/mojoV3/waveform.vcd"
+[dumpfile_mtime] "Thu Feb 19 17:59:59 2015"
+[dumpfile_size] 6525387
+[savefile] "/home/sheridp/Desktop/altor32/fpga/mojoV3/default.gtkw"
+[timestart] 219700000
+[size] 1283 737
+[pos] -1 -138
+*-18.000000 220500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top_tb.
+[treeopen] top_tb.u_top.
+[treeopen] top_tb.u_top.u_ram.
+[sst_width] 223
+[signals_width] 134
+[sst_expanded] 1
+[sst_vpaned_height] 180
+@28
+top_tb.u_top.u_ram.clkb_i
+@22
+top_tb.u_top.LED[7:0]
+top_tb.u_top.u_ram.addrb_i[31:2]
+top_tb.u_top.u_ram.datab_i[31:0]
+top_tb.u_top.u_ram.web_i[3:0]
+[pattern_trace] 1
+[pattern_trace] 0

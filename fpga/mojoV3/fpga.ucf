@@ -1,0 +1,38 @@
+##################################################################################
+## BPC3003_2.03+.ucf
+##
+## Author: Jack Gassett
+##
+## Details: http://gadgetforge.gadgetfactory.net/gf/project/butterfly_one/
+##
+## Contains assignment and iostandard information for
+## all used pins as well as timing and area constraints for Papilio One 2.03 and higher boards. Papilio One boards started using 32Mhz oscillators at version 2.02 and above.
+##
+##################################################################################
+
+# Crystal Clock - use 50MHz onboard oscillator
+NET "clk" TNM_NET = clk;
+TIMESPEC TS_clk = PERIOD "clk" 50 MHz HIGH 50%;
+NET "cclk" LOC = "P70";
+NET "rst_n" LOC = "P38";
+NET "clk" LOC = "P56";
+
+## RS232
+NET "rx"  LOC = "P120";
+NET "tx"  LOC = "P59";
+
+# SPI Flash
+#NET "flash_cs" LOC = "P24" ;    
+#NET "flash_si" LOC = "P27" ;    
+#NET "flash_so" LOC = "P44" ;    
+#NET "flash_sck" LOC = "P50" ;  
+
+#LEDS
+NET "LED<0>" LOC = "P134";#|IOSTANDARD="LVCMOS33";
+NET "LED<1>" LOC = "P133";#|IOSTANDARD="LVCMOS33";
+NET "LED<2>" LOC = "P132";#|IOSTANDARD="LVCMOS33";
+NET "LED<3>" LOC = "P131";#|IOSTANDARD="LVCMOS33";
+NET "LED<4>" LOC = "P127";#|IOSTANDARD="LVCMOS33";
+NET "LED<5>" LOC = "P126";#|IOSTANDARD="LVCMOS33";
+NET "LED<6>" LOC = "P124";#|IOSTANDARD="LVCMOS33";
+NET "LED<7>" LOC = "P123";#|IOSTANDARD="LVCMOS33"; 
