@@ -20,14 +20,14 @@ module ram #(parameter SIZE = 1024)(
 ram_dp8  #(.SIZE(SIZE), .FILENAME("mem_0.hex")) dp8_0(
 	.clka_i(clka_i),
 	.ena_i(ena_i),
-	.wea_i(wea_i[0]),
+	.wea_i(wea_i[3]),
 	.addra_i(addra_i),
 	.dataa_i(dataa_i[31:24]),
 	.dataa_o(dataa_o[31:24]),
 
 	.clkb_i(clkb_i),
 	.enb_i(enb_i),
-	.web_i(web_i[0]),
+	.web_i(web_i[3]),
 	.addrb_i(addrb_i),
 	.datab_i(datab_i[31:24]),
 	.datab_o(datab_o[31:24])
@@ -37,14 +37,14 @@ ram_dp8  #(.SIZE(SIZE), .FILENAME("mem_0.hex")) dp8_0(
 ram_dp8 #(.SIZE(SIZE), .FILENAME("mem_1.hex")) dp8_1(
 	.clka_i(clka_i),
 	.ena_i(ena_i),
-	.wea_i(wea_i[1]),
+	.wea_i(wea_i[2]),
 	.addra_i(addra_i),
 	.dataa_i(dataa_i[23:16]),
 	.dataa_o(dataa_o[23:16]),
 
 	.clkb_i(clkb_i),
 	.enb_i(enb_i),
-	.web_i(web_i[1]),
+	.web_i(web_i[2]),
 	.addrb_i(addrb_i),
 	.datab_i(datab_i[23:16]),
 	.datab_o(datab_o[23:16])
@@ -54,14 +54,14 @@ ram_dp8 #(.SIZE(SIZE), .FILENAME("mem_1.hex")) dp8_1(
 ram_dp8 #(.SIZE(SIZE), .FILENAME("mem_2.hex")) dp8_2(
 	.clka_i(clka_i),
 	.ena_i(ena_i),
-	.wea_i(wea_i[2]),
+	.wea_i(wea_i[1]),
 	.addra_i(addra_i),
 	.dataa_i(dataa_i[15:8]),
 	.dataa_o(dataa_o[15:8]),
 
 	.clkb_i(clkb_i),
 	.enb_i(enb_i),
-	.web_i(web_i[2]),
+	.web_i(web_i[1]),
 	.addrb_i(addrb_i),
 	.datab_i(datab_i[15:8]),
 	.datab_o(datab_o[15:8])
@@ -71,14 +71,14 @@ ram_dp8 #(.SIZE(SIZE), .FILENAME("mem_2.hex")) dp8_2(
 ram_dp8 #(.SIZE(SIZE), .FILENAME("mem_3.hex")) dp8_3(
 	.clka_i(clka_i),
 	.ena_i(ena_i),
-	.wea_i(wea_i[3]),
+	.wea_i(wea_i[0]),
 	.addra_i(addra_i),
 	.dataa_i(dataa_i[7:0]),
 	.dataa_o(dataa_o[7:0]),
 
 	.clkb_i(clkb_i),
 	.enb_i(enb_i),
-	.web_i(web_i[3]),
+	.web_i(web_i[0]),
 	.addrb_i(addrb_i),
 	.datab_i(datab_i[7:0]),
 	.datab_o(datab_o[7:0])
